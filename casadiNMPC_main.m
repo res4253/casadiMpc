@@ -23,7 +23,8 @@ manModel = man2007CL('mpc');
 
 %% 設定 %%%%%%%%%%%%%
 Ts = readTable('mpcConfig','Ts');
-t_end = readTable('simulationConfig','t_end');
+% t_end = readTable('simulationConfig','t_end');
+t_end = 3000;
 N = readTable('mpcConfig','N');
 % subjectNum = readTable('simulationConfig','subjectNum');
 %%%%%%%%%%%%%%%%%%%%
@@ -81,13 +82,13 @@ lb_x = -inf(nx*(N+1),1); % 状態の下限
 ub_u = 30000*ones(nu*N,1); % 入力の上限
 lb_u = 0*ones(nu*N,1); % 入力の下限
 u_ref = magniModel.u_0*ones(nu*N,1); % 入力の参照値
-x_ref = repmat(magniModel.x_0,N+1,1);
+% x_ref = repmat(magniModel.x_0,N+1,1);
 
 step = 0;
 for t = 0:Ts:t_end
     disp(['t = ', num2str(t)])
  
-    % x_ref = x_refs((step*nx)+1 : (step*nx)+nx*(N+1)); % 各時刻における時変目標値を x_refs から取り出す
+    x_ref = x_refs((step*nx)+1 : (step*nx)+nx*(N+1)); % 各時刻における時変目標値を x_refs から取り出す
     dist = dists((step*nd)+1 : (step*nd)+nd*N);
    
     nmpc = nmpc.solveNLP(t, x, dist, x_ref, u_ref, ub_x, lb_x, ub_u, lb_u);
@@ -130,20 +131,6 @@ end
 t_grid = 0:Ts:t_end;
 figure
 stairs(t_grid,us)
-
-data.xs = xs;
-data.ts = ts;
-data.us = us;
-data.Xopts = Xopts;
-data.Yopts = Yopts;
-data.Uopts = Uopts;
-data.cts = cts;
-data.N = N;
-data.Ts = Ts;
-data.t_end = t_end;
-data.subjectNum = subjectNum;
-
-save(['./data/data_s',num2str(subjectNum)],'data')
 
 rmpath(Path);
 
